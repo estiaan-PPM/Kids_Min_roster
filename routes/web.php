@@ -13,7 +13,7 @@ Route::get('/3-6', function () {
     $kids = Kid::where('age_group', '3-6')->get();
 
     return view('A', [
-        'kids' => $kids      
+        'kids' => $kids           
     ]);
 });
 

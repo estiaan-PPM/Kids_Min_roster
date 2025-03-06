@@ -14,5 +14,4 @@
         @endforeach
         </div>
 
-    <h1>Welcome to the 3-6s</h1> 
 </x-layout>
