@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('guardians', function (Blueprint $table) {
             $table->id();
             $table->string('name_1');
-            $table->string('name_2');
+            $table->string('name_2')->nullable();
             $table->string('cellphone_number_1');
-            $table->string('cellphone_number_2');
+            $table->string('cellphone_number_2')->nullable();
             $table->timestamps();
         });
     }

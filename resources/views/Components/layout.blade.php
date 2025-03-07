@@ -29,9 +29,10 @@
               <div class="ml-10 flex items-baseline space-x-4">
                 <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
                 <x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link>
-                <x-nav-link href="/3-6" :active="request()->is('3-6')">3-6s</x-nav-link>
-                <x-nav-link href="/7-10" :active="request()->is('7-10')">7-10s</x-nav-link>
-                <x-nav-link href="/11-13" :active="request()->is('11-13')">11-13s</x-nav-link>
+                <x-nav-link href="/class/3-6" :active="request()->is('3-6')">3-6s</x-nav-link>
+                <x-nav-link href="/class/7-10" :active="request()->is('7-10')">7-10s</x-nav-link>
+                <x-nav-link href="/class/11-13" :active="request()->is('11-13')">11-13s</x-nav-link>
+                <x-nav-link href="/create" :active="request()->is('create')">Add New</x-nav-link>
               </div>
             </div>
           </div>
@@ -43,9 +44,10 @@
         <div class="space-y-1 px-2 pt-2 pb-3 sm:px-3">
           <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link>
-            <x-nav-link href="/3-6" :active="request()->is('3-6')">3-6s</x-nav-link>
-            <x-nav-link href="/7-10" :active="request()->is('7-10')">7-10s</x-nav-link>
-            <x-nav-link href="/11-13" :active="request()->is('11-13')">11-13s</x-nav-link>
+            <x-nav-link href="/class/3-6" :active="request()->is('3-6')">3-6s</x-nav-link>
+            <x-nav-link href="/class/7-10" :active="request()->is('7-10')">7-10s</x-nav-link>
+            <x-nav-link href="/class/11-13" :active="request()->is('11-13')">11-13s</x-nav-link>
+            <x-nav-link href="/create" :active="request()->is('create')">Add New</x-nav-link>
         </div>
       </div>
     </nav>
@@ -56,7 +58,7 @@
       </div>
     </header>
     <main>
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 background-gray-500">
         {{ $slot }}
       </div>
     </main>
