@@ -3,11 +3,35 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Kid;
 use App\Models\Guardians;
+use Illuminate\Http\Request;
 
 
 
 Route::get('/', function () {
-    return view('home');
+    $kids = Kid::orderBy('name')->get();
+
+    return view('home', [
+        'kids' => $kids
+    ]);
+});
+
+Route::get('/', function (Request $request) {
+    $search = $request->input('search');
+
+    $kids = Kid::when($search, function ($query, $search) {
+        return $query->where('name', 'LIKE', "%{$search}%");
+    })->orderBy('name')->get();
+
+    // If a match is found, retrieve all kids with the same guardians_id
+    if ($kids->isNotEmpty()) {
+        $guardianIds = $kids->pluck('guardians_id')->unique();
+        $kids = Kid::whereIn('guardians_id', $guardianIds)->orderBy('name')->get();
+    }
+
+    return view('home', [
+        'kids' => $kids,
+        'search' => $search
+    ]);
 });
 
 Route::get('/create', function() {
