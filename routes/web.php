@@ -16,7 +16,7 @@ Route::get('/create', function() {
 
 Route::post('/create', function() {
 
-    $processedData = validateAndProcessGuardian(request());
+    $processedData = validateAndProcessGuardian(request(), 'POST');
 
     Kid::create([
         'name' => request('child-name'),
@@ -51,31 +51,39 @@ Route::get('/kid/{name}/edit', function($name){
 
 //Update
 Route::patch('/kid/{name}',function($name){
-    dd(request()->path());
+    // dd(request()->path());
     //validate
-    $processedData = validateAndProcessGuardian(request());
+    $processedData = validateAndProcessGuardian(request(), 'PATCH');
 
     //authorize
     
     //update the kid
     $kid = Kid::where('name', $name) -> first();
-    if($kid){    
+    if($kid){
+        $guardian = $kid->guardian;
+        // dd($guardian);
+        
         $kid->update([
             'name' => request('child-name'),
-            'guardians_id' => $processedData['guardianId'],
+            'guardians_id' => $guardian->id,
             'birth_date' => request('d-o-b'),
             'allergies' => request('allergies'),
             'age_group' => $processedData['class'],
             'age' => $processedData['age'],
         ]);
+        $guardian->update([
+            'name_1' => $processedData['guardian']['name_1'],
+            'name_2' => $processedData['guardian']['name_2'],
+            'cellphone_number_1' => $processedData['guardian']['cellphone_number_1'],
+            'cellphone_number_2' => $processedData['guardian']['cellphone_number_2'],
+        ]);
+        //dd($guardian);
     } 
 
     //persist
     //redirect to the kid page
     return redirect('/kid/' . $kid->name);
 });
-
-
 
 //Destroy
 Route::delete('/kid/{name}', function($name){
@@ -88,8 +96,9 @@ Route::delete('/kid/{name}', function($name){
 
 });
 
-function validateAndProcessGuardian($request)
+function validateAndProcessGuardian($request, $mode)
 {
+
     // Validation rules
     $rules = [
         "child-name" => ['required', 'min:2'],
@@ -100,32 +109,49 @@ function validateAndProcessGuardian($request)
         "email-1" => ['nullable', 'email'],
     ];
 
-    // Check if a Guardian exists with the same cellphone number
-    $guardian = Guardians::where('cellphone_number_1', $request->input('cell-1'))
-        ->orWhere('cellphone_number_2', $request->input('cell-1'))
-        ->first();
+    if ($mode == 'POST') {
+        // Check if a Guardian exists with the same cellphone number
+        $guardian = Guardians::where('cellphone_number_1', $request->input('cell-1'))
+            ->orWhere('cellphone_number_2', $request->input('cell-1'))
+            ->first();
 
-    // If a Guardian does not exist, make g-name-1 and email-1 required
-    if (!$guardian) {
-        $rules['g-name-1'] = ['required', 'min:2'];
-        $rules['email-1'] = ['required', 'email'];
-    }
+        // If a Guardian does not exist, make g-name-1 and email-1 required
+        if (!$guardian) {
+            $rules['g-name-1'] = ['required', 'min:2'];
+            $rules['email-1'] = ['required', 'email'];
+        }
 
-    // Validate the request using the dynamic rules
-    $validatedData = $request->validate($rules);
+        // Validate the request using the dynamic rules
+        $validatedData = $request->validate($rules);
 
-    // Process guardian data
-    if (!$guardian) {
-        $guardian = Guardians::create([
+        // Process guardian data
+        if (!$guardian) {
+            $guardian = Guardians::create([
+                'name_1' => $request->input('g-name-1'),
+                'name_2' => $request->input('g-name-2'),
+                'cellphone_number_1' => $request->input('cell-1'),
+                'cellphone_number_2' => $request->input('cell-2'),
+            ]);
+        }
+
+        // Get the guardian ID
+        $guardianId = $guardian->id;
+    } else if ($mode == 'PATCH'){
+        $validatedData = $request->validate($rules);
+
+        $guardian = [
             'name_1' => $request->input('g-name-1'),
             'name_2' => $request->input('g-name-2'),
             'cellphone_number_1' => $request->input('cell-1'),
             'cellphone_number_2' => $request->input('cell-2'),
-        ]);
-    }
+        ];
+        // dd($guardian);
+        // Get the guardian ID
+        $guardianId = null;
 
-    // Get the guardian ID
-    $guardianId = $guardian->id;
+    }   
+
+    
 
     // Process date of birth and determine class
     $dob = $request->input('d-o-b');
