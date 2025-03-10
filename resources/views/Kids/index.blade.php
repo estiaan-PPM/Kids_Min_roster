@@ -1,12 +1,12 @@
 <x-layout>
     <x-slot:heading>
-        {{$kids[1]->age_group}} Class
+        {{$kids->first()->age_group}} Class
     </x-slot:heading>
 
     <div>
         @foreach ($kids as $kid)
             {{-- <li>{{ $kid['name'] }}: Age {{ $kid['age'] }} {{ $kid['allergies'] == 'none' ? '' : Allergies {{ $kid['allergies'] }} }} </li> --}}
-                <a href="/kid/{{ $kid->name }}" class="block py-4 px-6 border-gray-200 rounded-lg">
+                <a href="/kid/{{ $kid->id }}" class="block py-4 px-6 border-gray-200 rounded-lg">
                     <div>
                         <strong>{{ $kid->name }}:</strong>
                         <ul style="margin-left: 10px; list-style: none; padding: 0; display: flex; gap: 10px; flex-wrap: wrap;">

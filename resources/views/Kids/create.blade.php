@@ -23,6 +23,60 @@
                     <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
                 @enderror
               </div>
+
+              <div class="sm:col-span-3">
+                <label for="surname" class="block text-sm/6 font-medium text-gray-900">Surname</label>
+                <div class="mt-2">
+                  {{-- <input type="hidden" name="_token" value="{{ csrf_token() }}"> --}}
+                  <input type="text" name="child-surname" id="child-surname" autocomplete="last-name" value ="{{ old('child-surname') }}" class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-700 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                </div>
+
+                @error('child-surname')
+                    <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+                @enderror
+              </div>
+
+              <div class="sm:col-span-4">
+                <label for="d-o-b" class="block text-sm/6 font-medium text-gray-900">Date of Birth</label>
+                <div class="mt-2">
+                  <input id="d-o-b" name="d-o-b" type="date" autocomplete="01/01/2020" value ="{{ old('d-o-b') }}" class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                </div>
+
+                @error('d-o-b')
+                        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+                @enderror
+              </div>
+              
+              <div class="sm:col-span-4">
+                <fieldset>
+                  <label for="gender" class="block text-sm/6 font-medium text-gray-900">Gender</label>
+                  <div class="mt-2 flex gap-x-6">
+                      <div class="flex items-center gap-x-2">
+                          <input id="male" name="gender" type="radio" value="Male" class="size-4 appearance-none rounded-full border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 focus:outline-indigo-600"{{ old('gender') == 'Male' ? 'checked' : '' }}>
+                          <label for="male" class="text-sm font-medium text-gray-900">Male</label>
+                      </div>
+                      <div class="flex items-center gap-x-2">
+                          <input id="female" name="gender" type="radio" value= "Female" class="size-4 appearance-none rounded-full border border-gray-300 bg-white checked:border-indigo-600 checked:bg-indigo-600 focus:outline-indigo-600"{{ old('gender') == 'Female' ? 'checked' : '' }}>
+                          <label for="female" class="text-sm font-medium text-gray-900">Female</label>
+                      </div>
+                  </div>
+              </fieldset>
+
+              @error('gender')
+                        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+              @enderror
+              </div>
+
+              <div class="sm:col-span-3">
+                <label for="home-language" class="block text-sm/6 font-medium text-gray-900">Home Language</label>
+                <div class="mt-2">
+                  <input type="text" name="home-language" id="home-language" autocomplete="" value ="{{ old('home-language') }}" class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
+                </div>
+
+                @error('home-language')
+                        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+                @enderror
+              </div>
       
               <div class="sm:col-span-3">
                 <label for="allergies" class="block text-sm/6 font-medium text-gray-900">Allergies</label>
@@ -34,17 +88,15 @@
                         <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
                 @enderror
               </div>
-      
-              <div class="sm:col-span-4">
-                <label for="d-o-b" class="block text-sm/6 font-medium text-gray-900">Date of Birth</label>
-                <div class="mt-2">
-                  <input id="d-o-b" name="d-o-b" type="date" autocomplete="01/01/2020" value ="{{ old('d-o-b') }}" class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required>
-                </div>
 
-                @error('d-o-b')
-                        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
-                @enderror
-              </div>              
+              <div class="col-span-full">
+                <label for="other" class="block text-sm/6 font-medium text-gray-900">Other special instructions:</label>
+                  <div class="mt-2">
+                    <textarea name="other" id="other" rows="3" class="block w-full rounded-md bg-gray-100 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"></textarea>
+                  </div>
+              </div>
+      
+              
             </div>
 
 
@@ -110,15 +162,6 @@
                                 
               </div>
           </div>
-          {{-- <div class="mt-10">
-            @if($errors->any())
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li class="text-red-500 italic">{{$error}}</li>
-                    @endforeach
-                </ul>
-            @endif
-          </div> --}}
           
         </div>
       

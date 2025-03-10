@@ -5,7 +5,15 @@
 
     {{-- <h1>Hello from the Home Page!</h1>  --}}
     <div class="flex items-center justify-start gap-x-6">
-      <button type="button" class="text-sm/6 font-semibold text-gray-900">New Attendance List</button>
+      @php
+          $columnName = 'test_' . \Carbon\Carbon::now()->format('Y_m_d');
+      @endphp
+
+      <a href="{{ isset($kid->$columnName) ? '#' : '/run-migration' }}" 
+      class="text-sm/6 font-semibold {{ isset($kid->$columnName) ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900 hover:text-blue-700' }}">
+      New Attendance List
+      </a>
+
       <button type="button" class="text-sm/6 font-semibold text-gray-900">Retrieve Attendance List</button>
     </div>
     <div class="search-container mt-6">
@@ -21,7 +29,7 @@
   <div>
     @foreach ($kids as $kid)
       <div class="flex justify-between items-center p-4 border border-transparent rounded-lg hover:border-gray-300 hover:bg-gray-100 transition duration-200">
-          <a href="/kid/{{ $kid->name }}" class="block">
+          <a href="/kid/{{ $kid->id }}" class="block">
               <p>
                   <strong>{{ $kid->name }}:</strong>  
                   <em>Class:</em> <span style="font-weight: 600">{{ $kid->age_group }}</span>  
@@ -29,9 +37,23 @@
                   <em>Guardian:</em> <span style="font-weight: 600">{{ $kid->guardian->name_1 }}</span>
               </p>
           </a>
-          <button type="button" class="text-sm font-semibold text-gray-900 px-3 py-1 bg-gray-200 rounded-md">
-              Sign In
-          </button>
+
+          <form method="POST" action="/update-attendance">
+            @csrf
+            <input type="hidden" name="_method" value="PATCH">
+            <input type="hidden" name="id" value="{{ $kid->id }}">
+        
+            <button type="submit" 
+                class="text-sm font-semibold px-3 py-1 rounded-md 
+                    @if(!is_null($kid->$columnName)) 
+                        bg-green-500 text-white
+                    @else 
+                         bg-gray-200 text-gray-500 hover:bg-gray-600 
+                    @endif">
+                Sign In
+            </button>
+        </form>
+        
       </div>
       @endforeach
   </div>

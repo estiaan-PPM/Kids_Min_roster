@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Kid;
 use App\Models\Guardians;
 use Illuminate\Http\Request;
+use App\Http\Controllers\MigrationController;
+use Carbon\Carbon;
 
 
 
@@ -44,11 +46,15 @@ Route::post('/create', function() {
 
     Kid::create([
         'name' => request('child-name'),
+        'surname' => request('child-surname'),
         'guardians_id' => $processedData['guardianId'],
         'birth_date' => request('d-o-b'),
+        'gender' => request('gender'),
         'allergies' => request('allergies'),
+        'other'=> request('other'),
         'age_group' => $processedData['class'],
         'age' => $processedData['age'],
+        'home_language' => request('home-language'),
 
     ]);
 
@@ -56,25 +62,47 @@ Route::post('/create', function() {
 });
 
 Route::get('/class/{group}', function ($group) {
-    $kids = Kid::where('age_group', $group)->orderBy('name')->get();
+    $columnName = 'test_' . \Carbon\Carbon::now()->format('Y_m_d');
 
-    return view('Kids.index', [
-        'kids' => $kids           
-    ]);
+    $kids = Kid::where($columnName, 'present')->orderBy('name')->get();
+    
+    
+    if ($kids->count() > 1) {
+        // Apply further filtering (e.g., by another column)
+        $kids = $kids->where('age_group', $group); // Example additional filter
+
+        return view('Kids.index', [
+            'kids' => $kids           
+        ]);
+    } else if ($kids->count() == 1){
+        $kid = $kids->where('age_group', $group);
+        if(!$kid) {
+            return view('Kids.zero_index');
+        } else {
+            return view('Kids.index', ['kids' => $kid]);
+        }
+        
+    } else {
+        return view('Kids.zero_index');
+    }
+
+    //dd($kids[0]);
+
+    
 });
 
-Route::get('/kid/{name}', function($name){
-    $kid = Kid::where('name', $name) -> first();
+Route::get('/kid/{id}', function($id){
+    $kid = Kid::find($id);
     return view('Kids.show', ['kid' => $kid]);
 });
 
-Route::get('/kid/{name}/edit', function($name){
-    $kid = Kid::where('name', $name) -> first();
+Route::get('/kid/{id}/edit', function($id){
+    $kid = Kid::find($id);
     return view('Kids.edit', ['kid' => $kid]);
 });
 
 //Update
-Route::patch('/kid/{name}',function($name){
+Route::patch('/kid/{id}',function($id){
     // dd(request()->path());
     //validate
     $processedData = validateAndProcessGuardian(request(), 'PATCH');
@@ -82,43 +110,74 @@ Route::patch('/kid/{name}',function($name){
     //authorize
     
     //update the kid
-    $kid = Kid::where('name', $name) -> first();
+    $kid = Kid::find($id);
     if($kid){
         $guardian = $kid->guardian;
         // dd($guardian);
         
         $kid->update([
             'name' => request('child-name'),
+            'surname' => request('child-surname'),
             'guardians_id' => $guardian->id,
             'birth_date' => request('d-o-b'),
+            'gender' => request('gender'),
             'allergies' => request('allergies'),
+            'other'=> request('other'),
             'age_group' => $processedData['class'],
             'age' => $processedData['age'],
+            'home_language' => request('home-language'),
         ]);
         $guardian->update([
             'name_1' => $processedData['guardian']['name_1'],
             'name_2' => $processedData['guardian']['name_2'],
             'cellphone_number_1' => $processedData['guardian']['cellphone_number_1'],
             'cellphone_number_2' => $processedData['guardian']['cellphone_number_2'],
+            'email_1' => $processedData['guardian']['email_1'],
+            'email_2' => $processedData['guardian']['email_2'],
         ]);
-        //dd($guardian);
+        // dd($kid->other);
     } 
 
     //persist
     //redirect to the kid page
-    return redirect('/kid/' . $kid->name);
+    return redirect('/kid/' . $kid->id);
 });
 
 //Destroy
-Route::delete('/kid/{name}', function($name){
+Route::delete('/kid/{id}', function($id){
 
-    $kid = Kid::where('name', $name)->first();
+    $kid = Kid::find($id);
     $kid->delete();
 
     return redirect('/');
 
 
 });
+
+//Update
+Route::patch('/update-attendance',function(Request $request){
+
+    $columnName = 'test_' . \Carbon\Carbon::now()->format('Y_m_d');
+    // dd($columnName);
+    //update the kid
+    $kid = Kid::find($request->id);
+    if($kid->$columnName == null){
+
+        $kid->update([
+            $columnName => 'present',
+        ]);
+    } else {
+        $kid->update([
+            $columnName => null,
+        ]);
+    }
+
+    //persist
+    //redirect to the kid page
+    return redirect('/');
+});
+
+Route::get('/run-migration', [MigrationController::class, 'createAndRunMigration']);
 
 function validateAndProcessGuardian($request, $mode)
 {
@@ -155,6 +214,8 @@ function validateAndProcessGuardian($request, $mode)
                 'name_2' => $request->input('g-name-2'),
                 'cellphone_number_1' => $request->input('cell-1'),
                 'cellphone_number_2' => $request->input('cell-2'),
+                'email_1' => $request->input('email-1'),
+                'email_2' => $request->input('email-2'),
             ]);
         }
 
@@ -168,6 +229,8 @@ function validateAndProcessGuardian($request, $mode)
             'name_2' => $request->input('g-name-2'),
             'cellphone_number_1' => $request->input('cell-1'),
             'cellphone_number_2' => $request->input('cell-2'),
+            'email_1' => $request->input('email-1'),
+            'email_2' => $request->input('email-2'),
         ];
         // dd($guardian);
         // Get the guardian ID
