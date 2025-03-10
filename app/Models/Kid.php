@@ -14,9 +14,5 @@ class Kid extends Model {
         return $this->belongsTo(Guardians::class, "guardians_id");
     }
 
-    public function getRouteKeyName()
-    {
-        return 'name';
-    }
 
 }

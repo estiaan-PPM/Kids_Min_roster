@@ -7,14 +7,21 @@
     <div class="flex items-center justify-start gap-x-6">
       @php
           $columnName = 'test_' . \Carbon\Carbon::now()->format('Y_m_d');
+        //   dd(!$columnName);
+        // dd(isset($kid->$columnName));
       @endphp
 
-      <a href="{{ isset($kid->$columnName) ? '#' : '/run-migration' }}" 
-      class="text-sm/6 font-semibold {{ isset($kid->$columnName) ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900 hover:text-blue-700' }}">
-      New Attendance List
-      </a>
+        @if(isset($kid->$columnName))
+        <a href="/run-migration" 
+            class="text-sm/6 font-semibold text-gray-900 hover:text-blue-700">
+            New Attendance List
+        </a>
+        @endif
 
-      <button type="button" class="text-sm/6 font-semibold text-gray-900">Retrieve Attendance List</button>
+      <a href="/attendance" 
+      class="text-sm/6 font-semibold text-gray-900">
+        Retrieve Attendance List
+    </a>
     </div>
     <div class="search-container mt-6">
       <form action="/" method="GET">
@@ -25,6 +32,9 @@
       </form>
   </div>
   
+  <div class="flex justify-between items-center p-4 border border-transparent rounded-lg">    
+    <p>There were currently {{$kids->where($columnName, "present")->count()}} children in attendance today.</p>
+  </div>
 
   <div>
     @foreach ($kids as $kid)
@@ -42,6 +52,7 @@
             @csrf
             <input type="hidden" name="_method" value="PATCH">
             <input type="hidden" name="id" value="{{ $kid->id }}">
+            <input type="hidden" name="search" value="{{ request('search') }}">
         
             <button type="submit" 
                 class="text-sm font-semibold px-3 py-1 rounded-md 

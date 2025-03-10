@@ -34,7 +34,7 @@ Route::get('/', function (Request $request) {
         'kids' => $kids,
         'search' => $search
     ]);
-});
+})->name('home');
 
 Route::get('/create', function() {
     return view('Kids.create');
@@ -65,16 +65,20 @@ Route::get('/class/{group}', function ($group) {
     $columnName = 'test_' . \Carbon\Carbon::now()->format('Y_m_d');
 
     $kids = Kid::where($columnName, 'present')->orderBy('name')->get();
-    
+    // $kids = Kid::all();
     
     if ($kids->count() > 1) {
         // Apply further filtering (e.g., by another column)
         $kids = $kids->where('age_group', $group); // Example additional filter
+        // dd(!$kids);
 
-        return view('Kids.index', [
-            'kids' => $kids           
-        ]);
-    } else if ($kids->count() == 1){
+        if($kids->count() == 0) {
+            //dd($kids);
+            return view('Kids.zero_index');
+        } else {
+            return view('Kids.index', ['kids' => $kids]);
+        }
+    } else if ($kids->count() <= 1){
         $kid = $kids->where('age_group', $group);
         if(!$kid) {
             return view('Kids.zero_index');
@@ -99,6 +103,28 @@ Route::get('/kid/{id}', function($id){
 Route::get('/kid/{id}/edit', function($id){
     $kid = Kid::find($id);
     return view('Kids.edit', ['kid' => $kid]);
+});
+
+Route::get('/attendance', function(Request $request){
+    $columns = Schema::getColumnListing('children'); // Get all columns from the 'children' table
+    $columns = collect($columns)->filter(fn($col) => str_starts_with($col, 'test_'));
+
+
+    // Get the selected column from the request
+    $selectedColumn = $request->input('selected_column');
+
+    // If the selected column exists, fetch the kids with that column value
+    if ($selectedColumn && Schema::hasColumn('children', $selectedColumn)) {
+        $kids = Kid::where($selectedColumn, 'present')->orderBy('birth_date', 'desc')->get();
+    } else {
+        $kids = collect(); // Empty collection if no valid column is selected
+    }
+
+    return view('Kids.attendance', [
+        'columns' => $columns,
+        'selectedColumn' => $selectedColumn,
+        'kids' => $kids,
+    ]);
 });
 
 //Update
@@ -174,8 +200,8 @@ Route::patch('/update-attendance',function(Request $request){
 
     //persist
     //redirect to the kid page
-    return redirect('/');
-});
+    return redirect()->route('home', ['search' => $request->input('search')]);
+})->name('update-attendance');
 
 Route::get('/run-migration', [MigrationController::class, 'createAndRunMigration']);
 

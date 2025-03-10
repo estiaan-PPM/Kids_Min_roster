@@ -18,14 +18,19 @@ class MigrationController extends Controller
             '--table' => 'children', // Specify the table name
         ]);
 
+        // Clear filesystem cache
+        clearstatcache();
+
         // Step 2: Get the latest migration file that was just created
         $migrationFile = $this->getLatestMigrationFile($migrationName);
+        // dd($migrationFile);
         if (!$migrationFile) {
             return redirect('/')->with('error', 'Migration file not found!');
         }
 
         // Step 3: Define the column name (ensuring consistency)
         $columnName = 'test_' . Carbon::now()->format('Y_m_d');
+        
 
         // Step 4: Define the migration content
         $migrationContent = <<<PHP
@@ -52,6 +57,8 @@ class MigrationController extends Controller
         };
         PHP;
 
+        //dd($migrationFile);
+
         //dd($migrationContent);
         // Step 5: Write the content into the migration file
         File::put($migrationFile, $migrationContent);
@@ -68,6 +75,15 @@ class MigrationController extends Controller
     {
         $migrationsPath = database_path('migrations');
         $files = glob("$migrationsPath/*_$migrationName.php");
-        return $files ? $files[0] : null;
+        if (!$files) {
+            return null;
+        }
+    
+        // Sort files by filename (timestamps come first in Laravel migration files)
+        usort($files, function ($a, $b) {
+            return strcmp(basename($b), basename($a)); // Sort descending (latest first)
+        });
+    
+        return $files[0]; // Return the latest migration file
     }
 }
